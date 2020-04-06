@@ -1,4 +1,4 @@
-from node import Node
+from src.node import Node
 
 class Stack:
   def __init__(self, name):
@@ -49,3 +49,12 @@ class Stack:
       pointer = pointer.get_next_node()
     print_list.reverse()
     print("{0} Stack: {1}".format(self.get_name(), print_list))
+  
+  def get_items(self):
+    pointer = self.top_item
+    print_list = []
+    while(pointer):
+      print_list.append(pointer.get_value())
+      pointer = pointer.get_next_node()
+    print_list.reverse()
+    return print_list
