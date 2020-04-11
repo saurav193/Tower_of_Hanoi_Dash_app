@@ -165,7 +165,8 @@ def get_min_moves():
     return min_moves
 
 # defining text styles
-header_styles = {'font-family':'arial','font-size':'20px', 'width': '300px'}
+header1_styles = {'font-family':'arial','font-size':'20px', 'width': '200px'}
+header2_styles = {'font-family':'arial','font-size':'20px', 'width': '300px'}
 err_styles = {'font-family':'arial','font-size':'12px', 'color': 'red', 'width': '200px'}
 complete_style = {'font-family':'calibri','font-size':'24px', 'color': 'blue', 'width': '400px'}
 
@@ -192,7 +193,7 @@ app.layout = html.Div([
             html.Div([
 # The Div with start button
                 html.H2('Starting game :', 
-                        style = header_styles),
+                        style = header1_styles),
                 dbc.Label("Enter the number of Disks(3-10) to start"),
                 dbc.FormGroup(
                 [
@@ -206,7 +207,7 @@ app.layout = html.Div([
             html.Div([
 # The Div with Moves button
                 html.H2('Making Moves :',
-                        style = header_styles),
+                        style = header1_styles),
                 dbc.Form(
                     [
                         dbc.Label("Min Moves :"),
@@ -253,12 +254,12 @@ app.layout = html.Div([
                     html.P(id = "error_msg", style = err_styles)
                 ])
             ],style={'display': 'inline-block', 'width': '50 %', 'border-width':'0'}),
-        ], style= {'display': 'inline-block','width': '40%', 'padding-left': '20px', 'border-width':'0'}),
+        ], style= {'display': 'inline-block','width': '45%', 'padding-left': '20px', 'border-width':'0'}),
 
         html.Div([
 # The Div showing the 3 towers
             html.H2('Current state of 3 towers ',
-                style=header_styles),
+                style=header2_styles),
             html.Div([
                 html.Div([ 
                     html.Iframe(
@@ -294,7 +295,7 @@ app.layout = html.Div([
                         style= {'display': 'inline-block','width': '33%','height': '30px', 'border-width':'0'}
             )], id='Towers'),
                 html.Div(id = "complete_msg", style = complete_style)], 
-            style= {'display': 'inline-block','width': '60%'})
+            style= {'display': 'inline-block','width': '55%'})
     
     ]),
 # Hidden Divs to store the global variables as local. These will be used to update values in the dashboard
