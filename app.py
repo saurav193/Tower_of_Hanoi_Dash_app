@@ -12,7 +12,7 @@ import numpy as np
 from src.stack import Stack
 
 app = dash.Dash(__name__, assets_folder='assets',external_stylesheets=[dbc.themes.CERULEAN])
-app.config['suppress_callback_exceptions'] = True
+# app.config['suppress_callback_exceptions'] = True
 
 server = app.server
 app.title = 'Tower of Hanoi'
@@ -253,7 +253,7 @@ app.layout = html.Div([
                     dbc.Button("Make Move", id="move", color="primary", active = False),
                     html.P(id = "error_msg", style = err_styles)
                 ])
-            ],style={'display': 'inline-block', 'width': '50 %', 'border-width':'0'}),
+            ],style={'display': 'inline-block', 'width': '50%', 'border-width':'0'}),
         ], style= {'display': 'inline-block','width': '45%', 'padding-left': '20px', 'border-width':'0'}),
 
         html.Div([
@@ -306,8 +306,7 @@ app.layout = html.Div([
     html.Div([], id='right_list', style={'display': 'none'}),
     html.Div(id='moves_completed', style={'display': 'none'}),
     html.Div(id='game_started', style={'display': 'none'}),
-    html.Div(id='game_complete', style={'display': 'none'})
-    
+    html.Div(id='game_complete', style={'display': 'none'}) 
 ])
 
 #1Starting the game by defining stack
