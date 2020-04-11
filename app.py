@@ -288,7 +288,7 @@ app.layout = html.Div([
     [dash.dependencies.Input('reset', 'n_clicks')],
     [dash.dependencies.State('Num_disks', 'value')]
     )
-def update_min_moves(n_clicks, Num_disks):
+def update_game_start(n_clicks, Num_disks):
     if n_clicks is None:
         raise PreventUpdate
 
