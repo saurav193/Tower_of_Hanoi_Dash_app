@@ -24,35 +24,37 @@ left = []
 middle = []
 right = []
 min_moves = 0
+game_completion_f =0
+final_answer = []
 
 # Chloropleth plot for tab 1
 def chart(disks, tower):
     
     num_disks = len(disks)
     
-    width = np.zeros(num_disks+5)
+    width = np.zeros(10)
 
     for i in range(1,num_disks+1,1):
         width[-i] = disks[i-1]
     
-    source = pd.DataFrame({'y': np.arange(num_disks+5), 'x': width})
+    source = pd.DataFrame({'y': np.arange(10), 'x': width})
 
     left = alt.Chart(source).encode(
         y=alt.Y('y:O', 
                 axis=None),
         x=alt.X('x:Q',
-                title='population',
                 axis=None,
+                scale=alt.Scale(domain=(0, 10)),
                 sort=alt.SortOrder('descending')),
-    ).mark_bar().properties(width = 100)
+    ).mark_bar().properties(width = 100, height = 150)
 
     right = alt.Chart(source).encode(
         y=alt.Y('y:O', 
                 axis=None),
         x=alt.X('x:Q',
                 axis=None,
-                title='population'),
-    ).mark_bar().properties(width = 100)
+                scale=alt.Scale(domain=(0, 10))),
+    ).mark_bar().properties(width = 100, height = 150)
     
     return alt.concat(left, right, spacing=5).properties(title = tower+" Tower")
 
@@ -88,7 +90,7 @@ def update_stacks(from_selector, to_selector):
         middle = stacks[1].get_items()
         right = stacks[2].get_items()
         moves = moves+1
-
+        inv_f = 0
     else:
         inv_f = 1
     
@@ -102,6 +104,8 @@ def initialize_stack(num_disks):
     global moves
     global inv_f
     global min_moves
+    global final_answer
+    global game_completion_f
 
     stacks = []
     left_stack = Stack("Left")
@@ -116,12 +120,26 @@ def initialize_stack(num_disks):
         stacks[0].push(i)
     
     left = stacks[0].get_items()
-    print(left, "global")
     middle = stacks[1].get_items()
     right = stacks[2].get_items()
     moves = 0
     inv_f = 0
     min_moves = 2**num_disks - 1
+    game_completion_f = 0
+    final_answer = left
+
+def check_completion():
+    global right
+    global final_answer
+    global game_completion_f
+    global moves
+
+    if final_answer == right:
+        game_completion_f = 1
+        moves = 0
+        return game_completion_f
+    else:
+        return game_completion_f
 
 def get_moves():
     return moves
@@ -141,21 +159,27 @@ def get_right():
 def get_min_moves():
     return min_moves
 
-header_styles = {'font-family':'arial','font-size':'20px', 'width': '500px'}
+header_styles = {'font-family':'arial','font-size':'20px', 'width': '200px'}
 
-err_styles = {'font-family':'arial','font-size':'10px', 'font-color': 'red', 'width': '500px'}
+err_styles = {'font-family':'arial','font-size':'12px', 'color': 'red', 'width': '200px'}
+
+complete_style = {'font-family':'calibri','font-size':'24px', 'color': 'blue', 'width': '400px'}
 
 app.layout = html.Div([ 
     # Adding Summary and Description of dashboard to the top of the page
     
     html.Div([dbc.Jumbotron([
                 dbc.Container([
-                      html.H2("Tower of Hanoi game"),
+                      html.H2("Tower of Hanoi"),
                       dcc.Markdown('''
-                    Using this App, play the tower or hanoi game.
+                                Rules of the game are:
+
+                                - Start the game from the Left Tower with the required number of disks. Aim is to move all the disks to the Right Tower.
+                                - Only a *lower* value disk can be placed on top of a *higher* value disk. Only 1 disk can be moved in any move.
+                                - Try to complete the game in minimum number of moves
+                                - The optimum number of moves is shown in "Min Moves" which depends on the number of disks.
                                 '''),],
-                              )],
-                                fluid=True,
+                              )], fluid = True
                             ),
             ]),
 
@@ -166,7 +190,7 @@ app.layout = html.Div([
             html.Div([
                 html.H2('Starting game :', 
                         style = header_styles),
-                dbc.Label("Enter number of Disks to start"),
+                dbc.Label("Enter the number of Disks(1-10) to start"),
                 dbc.FormGroup(
                 [
                     dbc.Input(  
@@ -174,21 +198,21 @@ app.layout = html.Div([
                                 type='number',
                                 value = 3),
                     dbc.Button("Start game", id="reset", color="primary", active=False)
-                ])
-            ], style={'display': 'inline-block', 'width': '50%', 'border-width':'0'}),
+                ]),
+            ], style={'display': 'inline-block', 'width': '50%', 'padding-right':'20px'}),
             html.Div([
                 html.H2('Making Moves :',
                         style = header_styles),
                 dbc.Form(
                     [
                         dbc.Label("Min Moves :"),
-                        html.P(id = "min_moves", style = {'padding-top': '10px'})
+                        html.P(id = "min_moves", style = {'font-size':'15px','padding-left': '5px','padding-top': '12px'})
                     ], inline = True
                 ),
                 dbc.Form(
                     [
                         dbc.Label("Your Moves :"),
-                        html.P(id = "your_moves", style = {'padding-top': '10px'}),
+                        html.P(id = "your_moves", style = {'font-size':'15px', 'padding-left': '5px','padding-top': '12px'}),
                         
                     ], inline = True
                 ),
@@ -225,7 +249,7 @@ app.layout = html.Div([
                     html.P(id = "error_msg", style = err_styles)
                 ])
             ],style={'display': 'inline-block', 'width': '50 %', 'border-width':'0'}),
-        ], style= {'display': 'inline-block','width': '30%','height': '363px', 'padding-left': '20px', 'border-width':'0'}),
+        ], style= {'display': 'inline-block','width': '40%', 'padding-left': '20px', 'border-width':'0'}),
 
         html.Div([
             html.H2('Current state of 3 towers ',
@@ -235,12 +259,10 @@ app.layout = html.Div([
                     html.Iframe(
                         sandbox='allow-scripts',
                         id='left_tower',
-                        height='300',
+                        height='200',
                         width='300',
                         style={'border-width':'0'},
-                        ################ The magic happens here
                         srcDoc = chart([], "Left").to_html()
-                        ################ The magic happens here
                         )],
                         style={'display': 'inline-block', 'width': '33%','height': '30px', 'border-width':'0'}
                 ),
@@ -248,12 +270,10 @@ app.layout = html.Div([
                     html.Iframe(
                         sandbox='allow-scripts',
                         id='middle_tower',
-                        height='300',
+                        height='200',
                         width='300',
                         style={'border-width': '0'},
-                        ################ The magic happens here
                         srcDoc = chart([], "Middle").to_html()
-                        ################ The magic happens here
                         )],
                         style={'display': 'inline-block', 'width': '33%','height': '30px', 'border-width':'0'}
             ),
@@ -261,15 +281,15 @@ app.layout = html.Div([
                     html.Iframe(
                         sandbox='allow-scripts',
                         id='right_tower',
-                        height='300',
+                        height='200',
                         width='300',
                         style={'border-width': '0'},
-                        ################ The magic happens here
                         srcDoc = chart([], "Right").to_html()
-                        ################ The magic happens here
                         )],
                         style= {'display': 'inline-block','width': '33%','height': '30px', 'border-width':'0'}
-            )], id='Towers')], style= {'display': 'inline-block','width': '70%', 'padding-left': '20px', 'border-width':'0'}),
+            )], id='Towers'),
+                html.Div(id = "complete_msg", style = complete_style)], 
+            style= {'display': 'inline-block','width': '60%'})
     
     ]),
     html.Div(0, id='num_moves', style={'display': 'none'}),
@@ -278,7 +298,8 @@ app.layout = html.Div([
     html.Div([], id='middle_list', style={'display': 'none'}),
     html.Div([], id='right_list', style={'display': 'none'}),
     html.Div(id='moves_completed', style={'display': 'none'}),
-    html.Div(id='game_started', style={'display': 'none'})
+    html.Div(id='game_started', style={'display': 'none'}),
+    html.Div(id='game_complete', style={'display': 'none'})
     
 ])
 
@@ -319,15 +340,23 @@ def finish_move(n_clicks, from_selector, to_selector):
 
 #Update moves
 @app.callback(Output('num_moves', 'children'),
-            [dash.dependencies.Input('moves_completed', 'children')])
-def update_moves(n_clicks):
+            [dash.dependencies.Input('game_started', 'children'),
+            dash.dependencies.Input('moves_completed', 'children')])
+def update_moves(game_started, moves_completed):
     return get_moves()
 
 #Update flag
 @app.callback(Output('invalid_flag', 'children'),
-            [dash.dependencies.Input('moves_completed', 'children')])
-def update_flags(n_clicks):
+            [dash.dependencies.Input('game_started', 'children'),
+            dash.dependencies.Input('moves_completed', 'children')])
+def update_flags(game_started, moves_completed):
     return get_flag()
+
+#Check completion
+@app.callback(Output('game_complete', 'children'),
+            [dash.dependencies.Input('moves_completed', 'children')])
+def check_complete(moves_completed):
+    return check_completion()
 
 
 #Updating local with global lists
@@ -337,7 +366,7 @@ def update_flags(n_clicks):
     dash.dependencies.Input('moves_completed', 'children')]
     )
 def update_left_local(reset, moves_completed):
-    print(get_left(), "updating local")
+    # print(get_left(), "updating local")
     return get_left()
 
 @app.callback(
@@ -394,11 +423,22 @@ def update_user_moves(num_moves):
     dash.dependencies.Output('error_msg', 'children'),
     [dash.dependencies.Input('invalid_flag', 'children')]
     )
-def update_error(invalid_flag):
+def update_error_msg(invalid_flag):
     if invalid_flag == 1:
         return "Invalid move / Try again"
-    return ""
+    else:
+        return ""
 
+# Updating completion message
+@app.callback(
+    dash.dependencies.Output('complete_msg', 'children'),
+    [dash.dependencies.Input('game_complete', 'children')],
+    [dash.dependencies.State('num_moves', 'children')]
+    )
+def update_complete_msg(game_complete, num_moves):
+    if game_complete == 1:
+        return "Hurray!! you have completed the game in "+str(num_moves+1)+" moves"
+    return ""
 
 if __name__ == '__main__':
     app.run_server(debug=True)
