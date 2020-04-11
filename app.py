@@ -17,6 +17,7 @@ app.config['suppress_callback_exceptions'] = True
 server = app.server
 app.title = 'Tower of Hanoi'
 
+# defining global variables
 stacks = []
 inv_f = 0
 moves = 0
@@ -27,7 +28,7 @@ min_moves = 0
 game_completion_f =0
 final_answer = []
 
-# Chloropleth plot for tab 1
+# Create tower plots as per number of disks
 def chart(disks, tower):
     
     num_disks = len(disks)
@@ -58,6 +59,7 @@ def chart(disks, tower):
     
     return alt.concat(left, right, spacing=5).properties(title = tower+" Tower")
 
+# updating charts from moves 
 def update_stacks(from_selector, to_selector):
     
     global stacks
@@ -96,6 +98,7 @@ def update_stacks(from_selector, to_selector):
     
     return left, middle, right
 
+# Initialing the towers for game start
 def initialize_stack(num_disks):
     global stacks
     global left
@@ -128,6 +131,7 @@ def initialize_stack(num_disks):
     game_completion_f = 0
     final_answer = left
 
+# Checking if the game is completed
 def check_completion():
     global right
     global final_answer
@@ -141,6 +145,7 @@ def check_completion():
     else:
         return game_completion_f
 
+# Returning global variables to update local variables
 def get_moves():
     return moves
 
@@ -159,14 +164,12 @@ def get_right():
 def get_min_moves():
     return min_moves
 
-header_styles = {'font-family':'arial','font-size':'20px', 'width': '200px'}
-
+# defining text styles
+header_styles = {'font-family':'arial','font-size':'20px', 'width': '300px'}
 err_styles = {'font-family':'arial','font-size':'12px', 'color': 'red', 'width': '200px'}
-
 complete_style = {'font-family':'calibri','font-size':'24px', 'color': 'blue', 'width': '400px'}
 
 app.layout = html.Div([ 
-    # Adding Summary and Description of dashboard to the top of the page
     
     html.Div([dbc.Jumbotron([
                 dbc.Container([
@@ -184,13 +187,13 @@ app.layout = html.Div([
             ]),
 
     html.Div([
-    ### Add Tabs to the top of the page
         html.Div([
 
             html.Div([
+# The Div with start button
                 html.H2('Starting game :', 
                         style = header_styles),
-                dbc.Label("Enter the number of Disks(1-10) to start"),
+                dbc.Label("Enter the number of Disks(3-10) to start"),
                 dbc.FormGroup(
                 [
                     dbc.Input(  
@@ -201,6 +204,7 @@ app.layout = html.Div([
                 ]),
             ], style={'display': 'inline-block', 'width': '50%', 'padding-right':'20px'}),
             html.Div([
+# The Div with Moves button
                 html.H2('Making Moves :',
                         style = header_styles),
                 dbc.Form(
@@ -252,6 +256,7 @@ app.layout = html.Div([
         ], style= {'display': 'inline-block','width': '40%', 'padding-left': '20px', 'border-width':'0'}),
 
         html.Div([
+# The Div showing the 3 towers
             html.H2('Current state of 3 towers ',
                 style=header_styles),
             html.Div([
@@ -292,6 +297,7 @@ app.layout = html.Div([
             style= {'display': 'inline-block','width': '60%'})
     
     ]),
+# Hidden Divs to store the global variables as local. These will be used to update values in the dashboard
     html.Div(0, id='num_moves', style={'display': 'none'}),
     html.Div(0, id='invalid_flag', style={'display': 'none'}),
     html.Div([], id='left_list', style={'display': 'none'}),
@@ -303,7 +309,7 @@ app.layout = html.Div([
     
 ])
 
-#Starting the game
+#1Starting the game by defining stack
 @app.callback(
     dash.dependencies.Output('game_started', 'children'),
     [dash.dependencies.Input('reset', 'n_clicks')],
@@ -312,11 +318,16 @@ app.layout = html.Div([
 def update_game_start(n_clicks, Num_disks):
     if n_clicks is None:
         raise PreventUpdate
+    
+    if Num_disks > 10:
+        Num_disks = 10
+    elif Num_disks < 3:
+        Num_disks = 3
 
-    initialize_stack(Num_disks)
+    initialize_stack(int(Num_disks))
     return 0
 
-#Getting min moves
+#1.1Getting min moves
 @app.callback(
     dash.dependencies.Output('min_moves', 'children'),
     [dash.dependencies.Input('game_started', 'children')]
@@ -324,7 +335,7 @@ def update_game_start(n_clicks, Num_disks):
 def update_min_moves(game_started):
     return get_min_moves() 
 
-#Update moves
+#2Updating moves on press of move button
 @app.callback(Output('moves_completed', 'children'),
                 [dash.dependencies.Input('move', 'n_clicks')],
               [
@@ -338,28 +349,28 @@ def finish_move(n_clicks, from_selector, to_selector):
     update_stacks(from_selector, to_selector)
     return 0
 
-#Update moves
+#2.1Update user moves
 @app.callback(Output('num_moves', 'children'),
             [dash.dependencies.Input('game_started', 'children'),
             dash.dependencies.Input('moves_completed', 'children')])
 def update_moves(game_started, moves_completed):
     return get_moves()
 
-#Update flag
+#2.2Update invalid move flag
 @app.callback(Output('invalid_flag', 'children'),
             [dash.dependencies.Input('game_started', 'children'),
             dash.dependencies.Input('moves_completed', 'children')])
 def update_flags(game_started, moves_completed):
     return get_flag()
 
-#Check completion
+#2.3Check completion
 @app.callback(Output('game_complete', 'children'),
             [dash.dependencies.Input('moves_completed', 'children')])
 def check_complete(moves_completed):
     return check_completion()
 
 
-#Updating local with global lists
+#2.4Updating local towers arrray with global lists
 @app.callback(
     dash.dependencies.Output('left_list', 'children'),
     [dash.dependencies.Input('game_started', 'children'),
@@ -385,13 +396,12 @@ def update_middle_local(reset, moves_completed):
 def update_right_local(reset, moves_completed):
     return get_right()
 
-# Resetting towers with local values
+#3Resetting towers in dashboard with local values left, middle and right
 @app.callback(
     dash.dependencies.Output('left_tower', 'srcDoc'),
     [dash.dependencies.Input('left_list', 'children')]
     )
 def reset_left_tower(left_list):
-    # print(left_list, "updating plot")
     return chart(left_list, "Left").to_html()
 
 @app.callback(
@@ -399,7 +409,6 @@ def reset_left_tower(left_list):
     [dash.dependencies.Input('middle_list', 'children')]
     )
 def reset_middle_tower(middle_list):
-    # print(middle_list)
     return chart(middle_list, "Middle").to_html()
 
 @app.callback(
@@ -407,10 +416,9 @@ def reset_middle_tower(middle_list):
     [dash.dependencies.Input('right_list', 'children')]
     )
 def reset_right_tower(right_list):
-    # print(right_list)
     return chart(right_list, "Right").to_html()
 
-# Updating user moves
+#3.1Updating user moves in dashboard
 @app.callback(
     dash.dependencies.Output('your_moves', 'children'),
     [dash.dependencies.Input('num_moves', 'children')]
@@ -418,7 +426,7 @@ def reset_right_tower(right_list):
 def update_user_moves(num_moves):
     return num_moves
 
-# Updating error message
+#3.2Updating error message in dashboard
 @app.callback(
     dash.dependencies.Output('error_msg', 'children'),
     [dash.dependencies.Input('invalid_flag', 'children')]
@@ -429,7 +437,7 @@ def update_error_msg(invalid_flag):
     else:
         return ""
 
-# Updating completion message
+#3.3Updating completion message in dashboard
 @app.callback(
     dash.dependencies.Output('complete_msg', 'children'),
     [dash.dependencies.Input('game_complete', 'children')],
