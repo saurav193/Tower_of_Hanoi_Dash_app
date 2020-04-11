@@ -14,11 +14,14 @@ Rules of the game are:
 - The optimum number of moves is shown in "Min Moves" which depends on the number of disks.
 
 Here is a screenshot of the game:
-<img src="imgs/app_screenshot.JPG" width="500" height="300">
+
+<img src="imgs/app_screenshot.JPG" width="800" height="400">
 
 The game can also be played on command line using the "src/game_script.py" file. Well this is not fun at all!!
+
 This is how it looks on command line:
-<img src="imgs/script_play.JPG" width="200" height="400">
+
+<img src="imgs/script_play.JPG" width="300" height="400">
 
 **Credits**
 The code for stack and node class was created with help of [codeacademy_Computer_Science_course](https://www.codecademy.com/learn/paths/computer-science)
