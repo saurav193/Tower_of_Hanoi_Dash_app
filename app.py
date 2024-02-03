@@ -2,7 +2,7 @@ import dash
 import dash_core_components as dcc
 import dash_bootstrap_components as dbc
 from dash.exceptions import PreventUpdate
-import dash_html_components as html
+from dash import html
 from dash.dependencies import Input, Output
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 import altair as alt
@@ -445,7 +445,7 @@ def update_error_msg(invalid_flag):
     )
 def update_complete_msg(game_complete, num_moves):
     if game_complete == 1:
-        return "Hurray!! you have completed the game in "+str(num_moves+1)+" moves"
+        return "Hurray!! you have completed the game in "+str(num_moves)+" moves"
     return ""
 
 if __name__ == '__main__':
